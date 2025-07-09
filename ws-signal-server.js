@@ -4,7 +4,7 @@
 const http = require('http');
 const WebSocket = require('ws');
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 const PATH = '/ws';
 
 const server = http.createServer();
