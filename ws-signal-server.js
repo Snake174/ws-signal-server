@@ -16,16 +16,26 @@ const peers = new Map();
 
 function send(ws, obj) {
     if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(obj));
+        const message = JSON.stringify(obj);
+        console.log(`Sending message: ${message.substring(0, 100)}...`);
+        ws.send(message);
+    } else {
+        console.log(`Cannot send message, WebSocket state: ${ws.readyState}`);
     }
 }
 
 function broadcastExcept(senderId, obj) {
+    let sentCount = 0;
     for (const [peerId, ws] of peers.entries()) {
         if (peerId !== senderId && ws.readyState === WebSocket.OPEN) {
+            console.log(`Sending message to peer ${peerId}, ws state: ${ws.readyState}`);
             send(ws, obj);
+            sentCount++;
+        } else {
+            console.log(`Skipping peer ${peerId}, ws state: ${ws.readyState}, is sender: ${peerId === senderId}`);
         }
     }
+    console.log(`Broadcast completed: sent to ${sentCount} peers`);
 }
 
 wss.on('connection', (ws, req) => {
