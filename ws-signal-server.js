@@ -1,4 +1,4 @@
-// ws-signal-server-mesh-updated.js
+// ws-signal-server.js
 // WebSocket mesh signaling server for WebRTC (Node.js) - Updated version
 
 const http = require('http');
@@ -55,8 +55,10 @@ wss.on('connection', (ws, req) => {
             return;
         }
 
-        // Обработка запроса о peer'ах
-        if (msg.Data === 'peers-request') {
+        console.log('Received message:', JSON.stringify(msg, null, 2));
+
+        // Обработка запроса о peer'ах - проверяем оба варианта регистра
+        if ((msg.Data === 'peers-request') || (msg.data === 'peers-request')) {
             console.log(`Peer ${peerId} requested peers list`);
             send(ws, {
                 type: 'unknown',
@@ -66,13 +68,19 @@ wss.on('connection', (ws, req) => {
             return;
         }
 
-        // Ожидаем поля: {from, to, type, data}
-        if (msg.to && peers.has(msg.to)) {
-            // unicast
-            send(peers.get(msg.to), msg);
-        } else if (msg.type === 'broadcast') {
+        // Ожидаем поля: {from, to, type, data} или {From, To, Type, Data}
+        // Проверяем оба варианта регистра
+        const to = msg.to || msg.To;
+        const from = msg.from || msg.From;
+        const type = msg.type || msg.Type;
+        const data = msg.data || msg.Data;
+
+        if (to && peers.has(to)) {
+            // unicast - отправляем как есть
+            send(peers.get(to), msg);
+        } else if (type === 'broadcast') {
             // broadcast всем кроме отправителя
-            broadcastExcept(msg.from, msg);
+            broadcastExcept(from, msg);
         } else {
             // неизвестный to
             console.log('Unknown recipient or message:', msg);
