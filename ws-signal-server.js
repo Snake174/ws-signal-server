@@ -41,10 +41,16 @@ wss.on('connection', (ws, req) => {
     });
 
     // Оповещаем других о новом peer
-    broadcastExcept(peerId, {
-        type: 'new-peer',
-        peerId
-    });
+    if (peers.size > 1) {
+        console.log(`Broadcasting new-peer notification for ${peerId} to ${peers.size - 1} existing peers`);
+        broadcastExcept(peerId, {
+            type: 'new-peer',
+            peerId
+        });
+        console.log(`Sent new-peer notification to ${peers.size - 1} existing peers`);
+    } else {
+        console.log(`No existing peers to notify about new peer ${peerId}`);
+    }
 
     ws.on('message', (message) => {
         let msg;
