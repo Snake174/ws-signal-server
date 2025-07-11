@@ -1,5 +1,5 @@
-// ws-signal-server-mesh.js
-// WebSocket mesh signaling server for WebRTC (Node.js)
+// ws-signal-server-mesh-updated.js
+// WebSocket mesh signaling server for WebRTC (Node.js) - Updated version
 
 const http = require('http');
 const WebSocket = require('ws');
@@ -15,7 +15,9 @@ const wss = new WebSocket.Server({ server, path: PATH });
 const peers = new Map();
 
 function send(ws, obj) {
-    ws.send(JSON.stringify(obj));
+    if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(obj));
+    }
 }
 
 function broadcastExcept(senderId, obj) {
@@ -52,6 +54,18 @@ wss.on('connection', (ws, req) => {
             console.log('Invalid message:', message);
             return;
         }
+
+        // Обработка запроса о peer'ах
+        if (msg.Data === 'peers-request') {
+            console.log(`Peer ${peerId} requested peers list`);
+            send(ws, {
+                type: 'unknown',
+                Data: 'peers-response',
+                peers: Array.from(peers.keys()).filter(id => id !== peerId)
+            });
+            return;
+        }
+
         // Ожидаем поля: {from, to, type, data}
         if (msg.to && peers.has(msg.to)) {
             // unicast
@@ -81,5 +95,5 @@ wss.on('connection', (ws, req) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`WebSocket Mesh Signal Server started at ws://localhost:${PORT}${PATH}`);
+    console.log(`WebSocket Mesh Signal Server (Updated) started at ws://localhost:${PORT}${PATH}`);
 });
