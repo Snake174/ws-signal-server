@@ -1,1 +1,16 @@
- 
+{
+    "name": "ws-signal-server",
+    "version": "1.0.0",
+    "description": "WebSocket mesh signaling server for WebRTC",
+    "main": "ws-signal-server.js",
+    "scripts": {
+      "start": "node ws-signal-server.js"
+    },
+    "dependencies": {
+      "ws": "^8.14.2",
+      "uuid": "^9.0.1"
+    },
+    "keywords": ["webrtc", "websocket", "signaling", "mesh"],
+    "author": "",
+    "license": "MIT"
+}
