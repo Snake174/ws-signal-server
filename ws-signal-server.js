@@ -73,8 +73,8 @@ wss.on('connection', (ws, req) => {
 
         console.log('Received message:', JSON.stringify(msg, null, 2));
 
-        // Обработка запроса о peer'ах - проверяем оба варианта регистра
-        if ((msg.Data === 'peers-request') || (msg.data === 'peers-request')) {
+        // Обработка запроса о peer'ах - теперь только по type (нижний регистр)
+        if (msg.type === 'peers-request') {
             console.log(`Peer ${peerId} requested peers list`);
             send(ws, {
                 type: 'peers-response',
@@ -83,12 +83,11 @@ wss.on('connection', (ws, req) => {
             return;
         }
 
-        // Ожидаем поля: {from, to, type, data} или {From, To, Type, Data}
-        // Проверяем оба варианта регистра
-        const to = msg.to || msg.To;
-        const from = msg.from || msg.From;
-        const type = msg.type || msg.Type;
-        const data = msg.data || msg.Data;
+        // Ожидаем поля: {from, to, type, data}
+        const to = msg.to;
+        const from = msg.from;
+        const type = msg.type;
+        const data = msg.data;
 
         if (to && peers.has(to)) {
             // unicast - отправляем как есть
