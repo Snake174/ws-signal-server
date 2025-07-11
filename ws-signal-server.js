@@ -77,8 +77,7 @@ wss.on('connection', (ws, req) => {
         if ((msg.Data === 'peers-request') || (msg.data === 'peers-request')) {
             console.log(`Peer ${peerId} requested peers list`);
             send(ws, {
-                type: 'unknown',
-                Data: 'peers-response',
+                type: 'peers-response',
                 peers: Array.from(peers.keys()).filter(id => id !== peerId)
             });
             return;
